@@ -1,7 +1,10 @@
 package com.banreservas.product.service;
 
+import com.banreservas.product.entity.Category;
 import com.banreservas.product.entity.Product;
+import com.banreservas.product.entity.ProductHelper;
 import com.banreservas.product.messaging.MessageQueue;
+import com.banreservas.product.repository.CategoryRepository; // Add this import
 import com.banreservas.product.repository.ProductRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,12 +18,14 @@ import com.banreservas.product.dto.ProductDTO;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository; // Add CategoryRepository
 
     @Inject
     MessageQueue messageQueue;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository; // Initialize CategoryRepository
     }
 
     @Transactional
@@ -29,8 +34,17 @@ public class ProductService {
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
         product.setPrice(productDTO.getPrice());
-        product.setCategory(productDTO.getCategory());
         product.setSku(productDTO.getSku());
+
+        // Find or create the Category
+        Category category = categoryRepository.findByName(ProductHelper.getCategoryName(product));
+        if (category == null) {
+            category = new Category();
+            category.setName(ProductHelper.getCategoryName(product));
+            categoryRepository.persist(category);
+        }
+        product.setCategory(category);
+
         productRepository.persist(product);
         messageQueue.publish("{\"event\": \"product_created\", \"product\": " + product.toString() + "}");
 
@@ -41,9 +55,12 @@ public class ProductService {
         return productRepository.listAll();
     }
 
-
-    public List<Product> getProductsByCategory(String category) {
-        return productRepository.findByCategory(category);
+    public List<Product> getProductsByCategory(String categoryName) {
+        Category category = categoryRepository.findByName(categoryName);
+        if (category == null) {
+            return List.of(); // return empty list if category not found.
+        }
+        return productRepository.findByCategory(category.getName());
     }
 
     public Optional<Product> getProductById(Long id) {
@@ -58,10 +75,18 @@ public class ProductService {
             product.setName(productDTO.getName());
             product.setDescription(productDTO.getDescription());
             product.setPrice(productDTO.getPrice());
-            product.setCategory(productDTO.getCategory());
             product.setSku(productDTO.getSku());
-            messageQueue.publish("{\"event\": \"product_updated\", \"product\": " + product.toString() + "}");
 
+            // Find or create the Category
+            Category category = categoryRepository.findByName(ProductHelper.getCategoryName(product));
+            if (category == null) {
+                category = new Category();
+                category.setName(ProductHelper.getCategoryName(product));
+                categoryRepository.persist(category);
+            }
+            product.setCategory(category);
+
+            messageQueue.publish("{\"event\": \"product_updated\", \"product\": " + product.toString() + "}");
             return Optional.of(product);
         }
         return Optional.empty();
@@ -70,8 +95,6 @@ public class ProductService {
     @Transactional
     public boolean deleteProduct(Long id) {
         messageQueue.publish("{\"event\": \"product_deleted\", \"product_id\": " + id + "}");
-
         return productRepository.deleteById(id);
     }
-
 }

@@ -14,8 +14,11 @@ public class Product extends PanacheEntity {
     private String name;
     private String description;
     private BigDecimal price;
-    private String category;
     private String sku;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -26,10 +29,10 @@ public class Product extends PanacheEntity {
     public void setDescription(String description) { this.description = description; }
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
     public String getSku() { return sku; }
     public void setSku(String sku) { this.sku = sku; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
 
     @Override
     public String toString() {
@@ -38,7 +41,6 @@ public class Product extends PanacheEntity {
                 ", \"name\":\"" + name + "\"" +
                 ", \"description\":\"" + description + "\"" +
                 ", \"price\":" + price +
-                ", \"category\":\"" + category + "\"" +
                 ", \"sku\":\"" + sku + "\"" +
                 '}';
     }
