@@ -1,25 +1,29 @@
 package com.banreservas.product.entity;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @Entity
 @Table(name = "products")
-public class Product extends PanacheEntity {
+public class Product extends PanacheEntityBase {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private Long id;
     private String name;
     private String description;
     private BigDecimal price;
     private String sku;
+    //private Long category_id;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id") // Correct join column
     private Category category;
 
+    public Product() {}
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

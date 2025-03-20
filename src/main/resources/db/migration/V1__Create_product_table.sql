@@ -3,6 +3,5 @@ CREATE TABLE products (
           name VARCHAR(255),
           description TEXT,
           price NUMERIC,
-          category VARCHAR(255),
           sku VARCHAR(255)
 );

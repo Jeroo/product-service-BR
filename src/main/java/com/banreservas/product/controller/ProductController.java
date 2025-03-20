@@ -13,18 +13,18 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-public class ProductResource {
+public class ProductController {
 
     private final ProductService productService;
 
-    public ProductResource(ProductService productService) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
     @POST
     public Response createProduct(ProductDTO productDTO) {
-        Product product = productService.createProduct(productDTO);
-        return Response.status(Response.Status.CREATED).entity(product).build();
+        Product createProduct = productService.createProduct(productDTO);
+        return Response.status(Response.Status.CREATED).entity(createProduct).build();
     }
 
     @GET

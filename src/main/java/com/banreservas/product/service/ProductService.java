@@ -31,13 +31,14 @@ public class ProductService {
     @Transactional
     public Product createProduct(ProductDTO productDTO) {
         Product product = new Product();
+        product.setId(productDTO.getId());
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
         product.setPrice(productDTO.getPrice());
         product.setSku(productDTO.getSku());
 
         // Find or create the Category
-        Category category = categoryRepository.findByName(ProductHelper.getCategoryName(product));
+        Category category = categoryRepository.findById(productDTO.getCategoryId());
         if (category == null) {
             category = new Category();
             category.setName(ProductHelper.getCategoryName(product));
@@ -46,7 +47,7 @@ public class ProductService {
         product.setCategory(category);
 
         productRepository.persist(product);
-        messageQueue.publish("{\"event\": \"product_created\", \"product\": " + product.toString() + "}");
+        //messageQueue.publish("{\"event\": \"product_created\", \"product\": " + product.toString() + "}");
 
         return product;
     }

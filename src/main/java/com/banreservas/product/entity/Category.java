@@ -1,20 +1,23 @@
 package com.banreservas.product.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
 @Table(name = "categories")
-public class Category extends PanacheEntity {
+public class Category extends PanacheEntityBase {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     private String name;
     private String description;
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;
+    @Id
+    private Long id;
+
+    public Category() {}
 
     // Getters and Setters
     public String getName() { return name; }
@@ -31,5 +34,13 @@ public class Category extends PanacheEntity {
                 ", \"name\":\"" + name + "\"" +
                 ", \"description\":\"" + description + "\"" +
                 '}';
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 }
