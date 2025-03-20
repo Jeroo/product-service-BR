@@ -1,7 +1,9 @@
 package com.banreservas.product.controller;
 
 import com.banreservas.product.entity.Category;
+import com.banreservas.product.messaging.MessageQueue;
 import com.banreservas.product.service.CategoryService;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -12,13 +14,16 @@ import java.util.Optional;
 @Path("/categories")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+//@Authenticated
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final MessageQueue messageQueue;
 
     @Inject
-    public CategoryController(CategoryService categoryService) {
+    public CategoryController(CategoryService categoryService, MessageQueue messageQueue) {
         this.categoryService = categoryService;
+        this.messageQueue = messageQueue;
     }
 
     @GET
@@ -42,6 +47,7 @@ public class CategoryController {
     @POST
     public Response createCategory(Category category) {
         Category createdCategory = categoryService.createCategory(category);
+        messageQueue.sendMessage("{\"event\": \"category_created\", \"category\": " + createdCategory.toString() + "}");
         return Response.status(Response.Status.CREATED).entity(createdCategory).build();
     }
 
@@ -58,6 +64,7 @@ public class CategoryController {
     public Response deleteCategory(@PathParam("id") Long id) {
         boolean deleted = categoryService.deleteCategory(id);
         if (deleted) {
+            messageQueue.sendMessage("{\"event\": \"category_deleted\", \"categoryId\": " + id + "}");
             return Response.noContent().build();
         }
         return Response.status(Response.Status.NOT_FOUND).build();

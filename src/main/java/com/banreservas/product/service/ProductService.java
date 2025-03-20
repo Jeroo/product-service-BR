@@ -9,10 +9,16 @@ import com.banreservas.product.repository.ProductRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.banreservas.product.dto.ProductDTO;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.hibernate.internal.util.collections.ArrayHelper;
 
 @ApplicationScoped
 public class ProductService {
@@ -20,8 +26,6 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository; // Add CategoryRepository
 
-    @Inject
-    MessageQueue messageQueue;
 
     public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
@@ -47,14 +51,30 @@ public class ProductService {
         product.setCategory(category);
 
         productRepository.persist(product);
-        //messageQueue.publish("{\"event\": \"product_created\", \"product\": " + product.toString() + "}");
-
         return product;
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.listAll();
+
+    public List<ProductDTO> getAllProducts() {
+        List<Product> listProducts = productRepository.listAll(); // Retrieve all products
+
+        // Convert List<Product> to List<ProductDTO>
+        // Adjust fields as needed
+        List<ProductDTO> listProductDTO = new ArrayList<>();
+        for (Product product : listProducts) {
+            ProductDTO productDTO = new ProductDTO(product.getId(),
+                    product.getName(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    product.getCategory().getId(),
+                    product.getSku());
+            listProductDTO.add(productDTO);
+        }
+
+        return listProductDTO;
     }
+
+
 
     public List<Product> getProductsByCategory(String categoryName) {
         Category category = categoryRepository.findByName(categoryName);
@@ -87,7 +107,7 @@ public class ProductService {
             }
             product.setCategory(category);
 
-            messageQueue.publish("{\"event\": \"product_updated\", \"product\": " + product.toString() + "}");
+           // messageQueue.publish("{\"event\": \"product_updated\", \"product\": " + product.toString() + "}");
             return Optional.of(product);
         }
         return Optional.empty();
@@ -95,7 +115,7 @@ public class ProductService {
 
     @Transactional
     public boolean deleteProduct(Long id) {
-        messageQueue.publish("{\"event\": \"product_deleted\", \"product_id\": " + id + "}");
+        //messageQueue.publish("{\"event\": \"product_deleted\", \"product_id\": " + id + "}");
         return productRepository.deleteById(id);
     }
 }
