@@ -4,6 +4,7 @@ import com.banreservas.product.entity.Category;
 import com.banreservas.product.messaging.MessageQueue;
 import com.banreservas.product.service.CategoryService;
 import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -14,7 +15,7 @@ import java.util.Optional;
 @Path("/categories")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-//@Authenticated
+@Authenticated
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -26,6 +27,7 @@ public class CategoryController {
         this.messageQueue = messageQueue;
     }
 
+    @RolesAllowed("Admin")
     @GET
     public List<Category> getAllCategories() {
         return categoryService.getAllCategories();

@@ -58,7 +58,7 @@ public class ProductController {
     }
 
     @PUT
-    @RolesAllowed("Admin")
+    //@RolesAllowed("Admin")
     @Path("/{id}")
     public Response updateProduct(@PathParam("id") Long id, ProductDTO productDTO) {
         return productService.updateProduct(id, productDTO)
