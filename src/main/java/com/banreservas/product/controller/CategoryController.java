@@ -15,7 +15,7 @@ import java.util.Optional;
 @Path("/categories")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Authenticated
+//@Authenticated
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -27,7 +27,7 @@ public class CategoryController {
         this.messageQueue = messageQueue;
     }
 
-    @RolesAllowed("Admin")
+    //@RolesAllowed("Admin")
     @GET
     public List<Category> getAllCategories() {
         return categoryService.getAllCategories();
