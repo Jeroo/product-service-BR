@@ -7,17 +7,19 @@ import com.banreservas.product.service.ProductService;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 import io.quarkus.cache.CacheResult;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 
 @Path("/products")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-//@Authenticated
+@Authenticated
 public class ProductController {
 
     private final ProductService productService;
@@ -39,6 +41,8 @@ public class ProductController {
 
     //@CacheResult(cacheName = "products-cache")
     @GET
+    @Transactional
+    @SecurityRequirement(name = "Keycloak")
     public List<ProductDTO> getAllProducts() {
         return productService.getAllProducts();
     }
