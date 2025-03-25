@@ -43,8 +43,17 @@ public class ProductController {
     @GET
     @Transactional
     @SecurityRequirement(name = "Keycloak")
+    @RolesAllowed("admin")
+    @CacheResult(cacheName = "product-cache")
     public List<ProductDTO> getAllProducts() {
         return productService.getAllProducts();
+    }
+
+    @GET
+    @CacheResult(cacheName = "product-cache")
+    public Response getAllProducts(@QueryParam("currency") String targetCurrency) {
+        List<ProductDTO> productDTOs = productService.getAllProductsByCurrency(targetCurrency);
+        return Response.ok(productDTOs).build();
     }
 
     @GET

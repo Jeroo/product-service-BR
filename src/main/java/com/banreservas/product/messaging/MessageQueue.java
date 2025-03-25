@@ -5,6 +5,7 @@ import io.smallrye.reactive.messaging.annotations.Channel;
 import io.smallrye.reactive.messaging.annotations.Emitter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,7 @@ public class MessageQueue {
     @Inject
     @Channel("product-events")
     Emitter<String> emitter;
-
+//    @Outgoing("product-events")
     public void sendMessage(String message) {
         emitter.send(message);
     }
