@@ -38,7 +38,10 @@ public class ProductService {
     private final ExchangeRateClient exchangeRateClient;
 
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, @RestClient ExchangeRateClient exchangeRateClient) {
+
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository,
+                          @RestClient ExchangeRateClient exchangeRateClient
+    ) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository; // Initialize CategoryRepository
         this.exchangeRateClient = exchangeRateClient;

@@ -14,6 +14,11 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import io.quarkus.cache.CacheResult;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.QueryParam;
 
 @Path("/products")
 @Produces(MediaType.APPLICATION_JSON)
@@ -30,7 +35,8 @@ public class ProductController {
         this.messageQueue = messageQueue;
     }
 
-    //@RolesAllowed("Admin")
+    @SecurityRequirement(name = "Keycloak")
+    @RolesAllowed("admin")
     @POST
     public Response createProduct(ProductDTO productDTO) {
         Product createdProduct = productService.createProduct(productDTO);
@@ -43,15 +49,16 @@ public class ProductController {
     @GET
     @Transactional
     @SecurityRequirement(name = "Keycloak")
-    @RolesAllowed("admin")
-    @CacheResult(cacheName = "product-cache")
+    @RolesAllowed("user")
+//    @CacheResult(cacheName = "product-cache")
     public List<ProductDTO> getAllProducts() {
         return productService.getAllProducts();
     }
 
     @GET
-    @CacheResult(cacheName = "product-cache")
-    public Response getAllProducts(@QueryParam("currency") String targetCurrency) {
+    @Path("/by-currency")
+//    @CacheResult(cacheName = "product-cache")
+    public Response getAllProductsByCurrency(@QueryParam("currency") String targetCurrency) {
         List<ProductDTO> productDTOs = productService.getAllProductsByCurrency(targetCurrency);
         return Response.ok(productDTOs).build();
     }
@@ -71,7 +78,8 @@ public class ProductController {
     }
 
     @PUT
-    //@RolesAllowed("Admin")
+    @SecurityRequirement(name = "Keycloak")
+    @RolesAllowed("admin")
     @Path("/{id}")
     public Response updateProduct(@PathParam("id") Long id, ProductDTO productDTO) {
         return productService.updateProduct(id, productDTO)
@@ -80,7 +88,8 @@ public class ProductController {
     }
 
     @DELETE
-    @RolesAllowed("Admin")
+    @SecurityRequirement(name = "Keycloak")
+    @RolesAllowed("admin")
     @Path("/{id}")
     public Response deleteProduct(@PathParam("id") Long id) {
         if (productService.deleteProduct(id)) {
